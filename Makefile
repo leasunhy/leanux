@@ -14,13 +14,13 @@ LIBS:=$(LIBS) -nostdlib -lgcc
 
 OBJS:=
 
-KERNEL_OBJ_LINK_LIST:=init/multiboot.o
+KERNEL_OBJ_LINK_LIST:=init/multiboot.o init/main.o
 
-.PHONY: all clean kernel
+.PHONY: all clean run
 
-all: kernel.elf
+all: leanux
 
-kernel.elf: $(KERNEL_OBJ_LINK_LIST) linker.ld
+leanux: $(KERNEL_OBJ_LINK_LIST) linker.ld
 	$(CC) -T linker.ld -o $@ $(CFLAGS) $(KERNEL_OBJ_LINK_LIST) $(LDFLAGS) $(LIBS)
 
 %.o: %.c
@@ -28,4 +28,11 @@ kernel.elf: $(KERNEL_OBJ_LINK_LIST) linker.ld
 
 %.o: %.S
 	$(AS) $(ASFLAGS) -f elf32 $< -o $@
+
+clean:
+	-rm -f leanux $(OBJS)
+	-find -type f -name \*.o -delete
+
+run: all
+	$(QEMU) $(QEMUOPTIONS) -kernel leanux
 
