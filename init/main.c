@@ -1,5 +1,7 @@
+#include <tty.h>
+
 void kernel_main() {
-    char *video_memory = (char*)0xB8000;
-    *video_memory = 'L';
+    tty_init();
+    tty_write("haha", 4);
 }
 

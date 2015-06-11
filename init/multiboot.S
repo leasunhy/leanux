@@ -62,6 +62,10 @@ global _start
 _start:
     mov esp, stack_top
 
+preload_user_programs:
+    ; TODO
+
+enter_pm:
     ; disable interrupts
     cli
 
