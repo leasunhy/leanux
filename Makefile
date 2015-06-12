@@ -3,7 +3,7 @@ MAKE=make
 CWD=$(shell pwd)
 
 CC:=i686-elf-gcc
-CFLAGS:=$(CFLAGS) -ffreestanding -O2 -Wall -Wextra -masm=intel
+CFLAGS:=$(CFLAGS) -ffreestanding -O2 -Wall -Wextra -masm=intel -std=gnu11
 LDFLAGS:=$(LDFLAGS)
 
 AS=nasm
@@ -15,7 +15,7 @@ LIBS:=$(LIBS) -nostdlib -lgcc -I$(CWD)/include
 
 OBJS:=
 
-KERNEL_OBJ_LINK_LIST:=init/multiboot.o init/main.o kernel/tty.o kernel/low_level.o kernel/utils.o
+KERNEL_OBJ_LINK_LIST:=init/multiboot.o init/main.o kernel/tty.o kernel/low_level.o kernel/utils.o kernel/interrupt.c interrupts/isr.o
 
 .PHONY: all clean run libc
 
@@ -28,7 +28,7 @@ libc:
 	$(MAKE) -C libc
 
 %.o: %.c
-	$(CC) -c $< -o $@ -std=gnu11 $(CFLAGS) $(LIBS)
+	$(CC) -c $< -o $@ $(CFLAGS) $(LIBS)
 
 %.o: %.S
 	$(AS) $(ASFLAGS) -f elf32 $< -o $@
