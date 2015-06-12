@@ -21,7 +21,7 @@ resb 16384
 stack_top:
 
 
-section .descriptors
+section .descriptor_tables
 align 4
 global gdt, idt, gdtr, idtr
 gdt:
@@ -48,11 +48,21 @@ gdt_ucode:
 gdt_udata:
     ; user data
     dq 0x00CFF2000000FFFF
+    
+    ; reserved for later use
+    times 0x10000-$+gdt db 0
 gdt_end:
+
+idt:
+    times 0x800 db 0
 
 gdt_descriptor:
     dw gdt_end - gdt - 1
     dd gdt
+
+idtr:
+    dw 0x800 - 1
+    dd idt
 
 CODE_SEG equ gdt_kcode - gdt
 DATA_SEG equ gdt_kdata - gdt
@@ -72,7 +82,7 @@ enter_pm:
     ; load gdt
     lgdt [gdt_descriptor]
 
-    ; fast A20 gate
+    ; quickly open A20 gate
     in al, 0x92
     or al, 2
     out 0x92, al
@@ -100,7 +110,7 @@ pm_init:
     call kernel_main
 
     cli
-.hang
+.hang:
     hlt
     jmp .hang
 

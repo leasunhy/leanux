@@ -2,6 +2,8 @@
 
 void kernel_main() {
     tty_init();
-    tty_write("haha", 4);
+    for (int i = 0; i < 30; ++i)
+        tty_write("haha\n", 5);
+    tty_write("####\n", 5);
 }
 

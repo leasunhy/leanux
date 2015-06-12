@@ -15,7 +15,7 @@ LIBS:=$(LIBS) -nostdlib -lgcc -I$(CWD)/include
 
 OBJS:=
 
-KERNEL_OBJ_LINK_LIST:=init/multiboot.o init/main.o kernel/tty.o
+KERNEL_OBJ_LINK_LIST:=init/multiboot.o init/main.o kernel/tty.o kernel/low_level.o kernel/utils.o
 
 .PHONY: all clean run libc
 
