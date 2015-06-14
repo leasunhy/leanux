@@ -3,7 +3,7 @@ MAKE=make
 CWD=$(shell pwd)
 
 CC:=i686-elf-gcc
-CFLAGS:=$(CFLAGS) -ffreestanding -O2 -Wall -Wextra -masm=intel -std=gnu11
+CFLAGS:=$(CFLAGS) -ffreestanding -O2 -Wall -Wextra -masm=intel -std=gnu11 -g
 LDFLAGS:=$(LDFLAGS)
 
 AS=nasm
@@ -11,11 +11,11 @@ AS=nasm
 QEMU=qemu-system-i386
 QEMUOPTIONS=-enable-kvm
 
-LIBS:=$(LIBS) -nostdlib -lgcc -I$(CWD)/include
+LIBS:=$(LIBS) -nostdlib -lgcc -I$(CWD)/include -I$(CWD)/libc/include
 
 OBJS:=
 
-KERNEL_OBJ_LINK_LIST:=init/multiboot.o init/main.o kernel/tty.o kernel/low_level.o kernel/utils.o kernel/interrupt.c interrupts/isr.o
+KERNEL_OBJ_LINK_LIST:=init/multiboot.o init/main.o kernel/tty.o kernel/low_level.o kernel/utils.o kernel/interrupt.c interrupts/isr.o kernel/printk.o
 
 .PHONY: all clean run libc
 

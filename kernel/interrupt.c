@@ -4,7 +4,8 @@
 #include <low_level.h>
 #include <interrupt.h>
 
-struct INT_DESC *IDT;
+extern struct INT_DESC idt;
+struct INT_DESC *IDT = &idt;
 
 void idt_init() {
     struct INT_DESC null_handler = make_int_desc(0x8, (uint32_t) &int_null);
@@ -17,10 +18,7 @@ struct INT_DESC make_int_desc(uint16_t selector, uint32_t offset) {
     struct INT_DESC res;
     res.offset_low = offset & 0xFFFF;
     res.segment_selector = selector;
-    res.type = 0xE;  /* 32-bit interrupt gate */
-    res.s = 0;          /* fixed to 0 for int gates */
-    res.dpl = 0;        /* highest priv. */
-    res.present = 1;
+    res.type_attr = 0x8E;     /* present, dpl=0, type=0xE(int) */
     res.offset_high = offset >> 16;
     return res;
 }
@@ -64,21 +62,27 @@ void pic_init() {
 }
 
 void send_pic_eoi(uint8_t irq) {
-    if (irq >= 8)
-        port_byte_out(PIC2_COMMAND, 0x20);
-    port_byte_out(PIC1_COMMAND, 0x20);
+    if (irq >= 0x28)
+        port_byte_out(PIC2_COMMAND, PIC_EOI);
+    port_byte_out(PIC1_COMMAND, PIC_EOI);
 }
 
 void enable_irq(uint8_t irq) {
     uint8_t mask;
-    if (irq >= 8) {
+    if (irq >= 0x28) {
         mask = port_byte_in(PIC2_DATA);
-        mask &= ~(1 << (irq - 8));
+        mask &= ~(1 << (irq - 0x28));
         port_byte_out(PIC2_DATA, mask);
     } else {
         mask = port_byte_in(PIC1_DATA);
-        mask &= ~(0x1 << irq);
+        mask &= ~(1 << (irq - 0x20));
         port_byte_out(PIC1_DATA, mask);
     }
+}
+
+void register_interrupt(uint8_t irq, uint16_t selector, uint32_t offset) {
+    IDT[irq] = make_int_desc(selector, offset);
+    if (irq >= 0x20 && irq <= 0x2f)
+        enable_irq(irq);
 }
 

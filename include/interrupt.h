@@ -27,11 +27,8 @@
 struct INT_DESC {
     uint16_t offset_low;
     uint16_t segment_selector;
-    uint16_t zeros           : 8;
-    uint16_t type            : 4;
-    uint16_t s               : 1;
-    uint16_t dpl             : 2;
-    uint16_t present         : 1;
+    uint8_t zeros;
+    uint8_t type_attr;  /* p, dpl, s, type */
     uint16_t offset_high;
 }__attribute__((packed));
 
@@ -46,11 +43,11 @@ void register_interrupt(uint8_t irq, uint16_t selector, uint32_t offset);
 
 struct INT_DESC make_int_desc(uint16_t selector, uint32_t offset);
 
-inline void disable_int() {
+inline void disable_interrupt() {
     __asm__ __volatile__("cli");
 }
 
-inline void enable_int() {
+inline void enable_interrupt() {
     __asm__ __volatile__("sti");
 }
 

@@ -1,14 +1,33 @@
+#include <stdint.h>
+
 #include <leanux.h>
 #include <tty.h>
 #include <interrupt.h>
 
-void kernel_main() {
-    tty_init();
-    pic_init();
-    idt_init();
+#include <stdio.h>
 
-    for (int i = 0; i < 30; ++i)
-        tty_write("haha\n", 5);
-    tty_write("####\n", 5);
+void _keyboard() {
+    uint8_t val = port_byte_in(0x60);
+    printk("haha\n");
+    send_pic_eoi(0x21);
+    enable_irq(0x21);
+}
+
+void keyboard();
+
+void kernel_main() {
+    disable_interrupt();
+    tty_init();
+    idt_init();
+    pic_init();
+
+    register_interrupt(0x21, 0x8, (uint32_t)&keyboard);
+
+    enable_interrupt();
+
+    int i = 0;
+    while (1) {
+        ++i;
+    }
 }
 
