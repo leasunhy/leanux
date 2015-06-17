@@ -1,19 +1,13 @@
 #include <stdint.h>
 
-#include <leanux.h>
-#include <tty.h>
-#include <interrupt.h>
+#include <leanux/leanux.h>
+#include <leanux/interrupt.h>
+#include <leanux/low_level.h>
+#include <drivers/tty.h>
+#include <drivers/keyboard.h>
+#include <lib/printk.h>
 
-#include <stdio.h>
-
-void _keyboard() {
-    uint8_t val = port_byte_in(0x60);
-    printk("haha\n");
-    send_pic_eoi(0x21);
-    enable_irq(0x21);
-}
-
-void keyboard();
+void shell_main();
 
 void kernel_main() {
     disable_interrupt();
@@ -21,13 +15,12 @@ void kernel_main() {
     idt_init();
     pic_init();
 
-    register_interrupt(0x21, 0x8, (uint32_t)&keyboard);
+    keyboard_init();
 
     enable_interrupt();
 
-    int i = 0;
     while (1) {
-        ++i;
+        shell_main();
     }
 }
 

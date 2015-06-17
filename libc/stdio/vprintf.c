@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-#include <tty.h>
+#include <drivers/tty.h>
 
 static size_t itoa(char *buf, int i, int base) {
     const char *digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";

@@ -2,10 +2,13 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include <tty.h>
-#include <vga.h>
-#include <utils.h>
-#include <low_level.h>
+#include <leanux/interrupt.h>
+#include <leanux/low_level.h>
+#include <drivers/keyboard.h>
+#include <drivers/tty.h>
+#include <drivers/vga.h>
+#include <lib/utils.h>
+#include <lib/cirqueue.h>
 
 enum {
     REG_SCREEN_CTRL = 0x3D4,
@@ -89,9 +92,35 @@ void tty_handle_scroll() {
     --tty_y;
 }
 
+size_t tty_read(char *buf, size_t len) {
+    size_t i = 0;
+    while (i != len) {
+        uint16_t scan_code;
+        while (!cirqueue_serve(&kb_buf, &scan_code))
+            ;
+        if ((scan_code & 0xFF) < 0xE0) {  /* it's a normal key */
+            uint16_t key = KEYMAP[scan_code & 0xff];
+            buf[i] = key & 0xFF;
+            tty_putchar(buf[i]);
+            i += 1;
+        } else {  /* extended key */
+            /*nothing here*/
+        }
+    }
+    buf[i] = '\0';
+    return i;
+}
+
 void tty_write(const char *data, size_t size) {
     for (size_t i = 0; i < size; ++i)
         tty_putchar(data[i]);
+}
+
+void tty_write_colored(const char *data, size_t size, uint8_t color) {
+    uint8_t ori_color = tty_color;
+    tty_color = color;
+    tty_write(data, size);
+    tty_color = ori_color;
 }
 
 void tty_writestring(const char *str) {

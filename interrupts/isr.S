@@ -4,7 +4,9 @@
 [extern _%1]
 [global %1]
 %1:
+    pushad
     call dword _%1
+    popad
     iretd
 %endmacro
 
@@ -33,5 +35,5 @@ int_null_1:
     iretd
 
 
-INT_HANDLER_WRAPPER keyboard
+INT_HANDLER_WRAPPER int_21_keyboard
 

@@ -1,9 +1,9 @@
 #include <stddef.h>
 #include <stdarg.h>
 
-#include <tty.h>
+#include <drivers/tty.h>
 
-void putchar(int c) {
+void kputchar(int c) {
     char cc = (char)c;
     tty_write(&cc, 1);
 }
@@ -42,12 +42,12 @@ int printk(const char *fmt, ...) {
     char c;
     while ((c = *fmt++) != '\0') {
         if (c != '%') {
-            putchar(c);
+            kputchar(c);
             continue;
         }
         c = *fmt;
         if (c == 'c') {
-            putchar(va_arg(ap, int));
+            kputchar(va_arg(ap, int));
         } else if (c == 'd') {
             char num_buf[40];
             itoa(num_buf, va_arg(ap, int), 10);

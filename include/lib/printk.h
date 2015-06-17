@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdarg.h>
 
-void putchar(int c);
+void kputchar(int c);
 
 int printk(const char *fmt, ...);
 

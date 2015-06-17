@@ -1,8 +1,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include <low_level.h>
-#include <interrupt.h>
+#include <leanux/low_level.h>
+#include <leanux/interrupt.h>
 
 extern struct INT_DESC idt;
 struct INT_DESC *IDT = &idt;
