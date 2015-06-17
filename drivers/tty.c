@@ -81,6 +81,14 @@ void tty_putchar(char c) {
     tty_updatecursor();
 }
 
+void tty_putchar_ntimes(char c, uint8_t color, size_t n) {
+    uint8_t ori_color = tty_color;
+    tty_color = color;
+    for (size_t i = 0; i < n; ++i)
+        tty_putchar(c);
+    tty_color = ori_color;
+}
+
 void tty_handle_scroll() {
     if (tty_y < VGA_HEIGHT)
         return;
@@ -97,14 +105,24 @@ size_t tty_read(char *buf, size_t len) {
     while (i != len) {
         uint16_t scan_code;
         while (!cirqueue_serve(&kb_buf, &scan_code))
-            ;
+            /*nothing here*/;
+        uint16_t key = KEYMAP[scan_code & 0xff];
         if ((scan_code & 0xFF) < 0xE0) {  /* it's a normal key */
-            uint16_t key = KEYMAP[scan_code & 0xff];
-            buf[i] = key & 0xFF;
-            tty_putchar(buf[i]);
-            i += 1;
+            if (key == KB_ENTER) {
+                tty_putchar('\n');
+                break;
+            } else if (key == KB_BACKSPACE) {
+                if (i != 0) {
+                    tty_putchar('\b');
+                    i -= 1;
+                }
+            } else {
+                buf[i] = key & 0xFF;
+                tty_putchar(buf[i]);
+                i += 1;
+            }
         } else {  /* extended key */
-            /*nothing here*/
+
         }
     }
     buf[i] = '\0';
@@ -125,6 +143,10 @@ void tty_write_colored(const char *data, size_t size, uint8_t color) {
 
 void tty_writestring(const char *str) {
     tty_write(str, strlen(str));
+}
+
+void tty_writestring_colored(const char *str, uint8_t color) {
+    tty_write_colored(str, strlen(str), color);
 }
 
 int tty_getcursor() {
