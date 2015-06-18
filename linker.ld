@@ -11,19 +11,26 @@ SECTIONS
 	   Next we'll put the .text section. */
 	.text BLOCK(4K) : ALIGN(4K)
 	{
+        KERNEL_RO_START = .;
 		*(.multiboot)
+        *(.init)
 		*(.text)
+        *(.fini)
 	}
 
 	/* Read-only data. */
 	.rodata BLOCK(4K) : ALIGN(4K)
 	{
 		*(.rodata)
+        KERNEL_RO_END = .;
 	}
 
 	/* Read-write data (initialized) */
 	.data BLOCK(4K) : ALIGN(4K)
 	{
+        KERNEL_RW_START = .;
+        *(.page_constructs)
+        *(.descriptor_tables)
 		*(.data)
 	}
 
@@ -33,7 +40,9 @@ SECTIONS
 		*(COMMON)
 		*(.bss)
 		*(.bootstrap_stack)
+        KERNEL_RW_END = .;
 	}
 
+    KERNEL_END = .;
 }
 

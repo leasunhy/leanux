@@ -14,10 +14,10 @@ align 4
     dd CHECKSUM
 
 
-section .bootstrap_stack, nobits
+section .bootstrap_stack
 align 4
 stack_bottom:
-resb 16384
+times 4096 db 0
 stack_top:
 
 
@@ -48,7 +48,7 @@ gdt_ucode:
 gdt_udata:
     ; user data
     dq 0x00CFF2000000FFFF
-    
+
     ; reserved for later use
     times 0x10000-$+gdt db 0
 gdt_end:
@@ -67,13 +67,19 @@ idtr:
 CODE_SEG equ gdt_kcode - gdt
 DATA_SEG equ gdt_kdata - gdt
 
+section .page_constructs
+global page_directory, kernel_page_table
+align 4096
+page_directory:
+    times 0x1000 db 0
+align 4096
+kernel_page_table:
+    times 0x1000 db 0
+
 section .text:
 global _start
 _start:
     mov esp, stack_top
-
-preload_user_programs:
-    ; TODO
 
 enter_pm:
     ; disable interrupts
@@ -106,6 +112,7 @@ pm_init:
     mov fs, ax
     mov gs, ax
 
+    push ebx  ; get hardware info
     extern kernel_main
     call kernel_main
 

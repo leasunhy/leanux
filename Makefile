@@ -15,9 +15,14 @@ LIBS:=$(LIBS) -nostdlib -lgcc -I$(CWD)/include
 
 OBJS:=
 
-KERNEL_OBJ_LINK_LIST:=init/multiboot.o init/main.o drivers/tty.o kernel/low_level.o lib/utils.o kernel/interrupt.c interrupts/isr.o lib/printk.o lib/cirqueue.o drivers/keyboard.o init/sh.o
+KERNEL_OBJ_LINK_LIST:=$(CRTI_OBJ) $(CRTN_OBJ) $(CRTBEGIN_OBJ) $(CRTEND_OBJ)\
+	init/multiboot.o init/main.o init/sh.o\
+	interrupts/isr.o interrupts/syscall.o\
+	kernel/interrupt.o kernel/low_level.o kernel/mm.o\
+	drivers/keyboard.o drivers/tty.o\
+	lib/printk.o lib/cirqueue.o lib/utils.o\
 
-.PHONY: all clean run libc
+.PHONY: all clean run libc programs
 
 all: leanux
 
@@ -27,6 +32,10 @@ leanux: $(KERNEL_OBJ_LINK_LIST) linker.ld
 libc:
 	$(MAKE) -C libc
 
+programs: libc
+	$(MAKE) -C programs
+	cp programs/disk.img .
+
 %.o: %.c
 	$(CC) -c $< -o $@ $(CFLAGS) $(LIBS)
 
@@ -35,10 +44,11 @@ libc:
 
 clean:
 	-$(MAKE) -C libc clean
+	-$(MAKE) -C programs clean
 	-rm -f leanux $(OBJS)
 	-find -type f -name \*.o -delete
 
 run: all
-	$(QEMU) $(QEMUOPTIONS) -kernel leanux -s
+	$(QEMU) $(QEMUOPTIONS) -kernel leanux -s -monitor telnet:localhost:2234,server,nowait
 
 

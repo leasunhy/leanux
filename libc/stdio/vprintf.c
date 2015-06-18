@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-#include <drivers/tty.h>
+#include <leanux/sys.h>
 
 static size_t itoa(char *buf, int i, int base) {
     const char *digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -55,9 +55,9 @@ int vprintf(const char *fmt, va_list ap)
         } else if (c == 'd') {
             char num_buf[40];
             itoa(num_buf, va_arg(ap, int), 10);
-            tty_writestring(num_buf);
+            write(1, num_buf, 0x0F);
         } else if (c == 's') {
-            tty_writestring(va_arg(ap, char *));
+            write(1, va_arg(ap, char *), 0x0F);
         }
     }
     ++fmt;

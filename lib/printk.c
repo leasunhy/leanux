@@ -52,6 +52,10 @@ int printk(const char *fmt, ...) {
             char num_buf[40];
             itoa(num_buf, va_arg(ap, int), 10);
             tty_writestring(num_buf);
+        } else if (c == 'x') {
+            char num_buf[40];
+            itoa(num_buf, va_arg(ap, int), 16);
+            tty_writestring(num_buf);
         } else if (c == 's') {
             tty_writestring(va_arg(ap, char *));
         }

@@ -34,6 +34,15 @@ int_null_1:
     popad
     iretd
 
+[extern _int_page_fault]
+[global int_page_fault]
+int_page_fault:
+    mov eax, cr2
+    push eax
+    call int_page_fault
+    iretd
+
 
 INT_HANDLER_WRAPPER int_21_keyboard
+INT_HANDLER_WRAPPER syscall
 

@@ -18,6 +18,7 @@ struct INT_DESC make_int_desc(uint16_t selector, uint32_t offset) {
     struct INT_DESC res;
     res.offset_low = offset & 0xFFFF;
     res.segment_selector = selector;
+    res.zeros = 0;
     res.type_attr = 0x8E;     /* present, dpl=0, type=0xE(int) */
     res.offset_high = offset >> 16;
     return res;
