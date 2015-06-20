@@ -1,12 +1,12 @@
 CWD=$(shell pwd)
 
 CC:=i686-elf-gcc
-LIBC_CFLAGS:=$(CFLAGS) -ffreestanding -O2 -Wall -Wextra -masm=intel -fbuiltin
+LIBC_CFLAGS:=$(CFLAGS) -ffreestanding -O2 -Wall -Wextra -masm=intel -std=gnu11 -g
 LIBC_LDFLAGS:=$(LDFLAGS)
 
 AR:=i686-elf-ar
 
-LIBS:=$(LIBS) -nostdlib -I$(CWD)/include -lgcc 
+LIBS:=$(LIBS) -nostdlib -I$(CWD)/include -lgcc
 
 STDIO_OBJS:=\
 	stdio/vprintf.o \

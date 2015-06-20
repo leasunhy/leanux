@@ -2,9 +2,11 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include <leanux/mm.h>
 #include <drivers/vga.h>
 #include <drivers/tty.h>
 #include <lib/printk.h>
+#include <lib/utils.h>
 
 #define printf printk
 
@@ -29,11 +31,29 @@ void shell_main() {
     }
 }
 
+inline void call(uint32_t addr) {
+    __asm__ __volatile__("call %0" ::"m"(addr));
+}
+
+void exec_program(uint8_t prog_no) {
+    if (prog_no != 1)
+        return;
+    uint32_t user_address = 0x800000;
+    mm_mmap(kernel_pd, user_address >> 12, alloc_page(1024, num_of_page), 1, 0, 1);
+    read_disk(2, 3, (void*)user_address);
+    call(user_address);
+}
+
 /* process the command line */
 void shell_process_cmd(const char *s, size_t len) {
     if (len == shell_cmd_maxlen) {
         shell_print_error("Command too long. Discarded.");
     }
+    if (string_cmp(s, "prog1") == 0) {
+        exec_program(1);
+        return;
+    }
+    shell_print_error("No such command.");
 }
 
 
