@@ -42,7 +42,13 @@ const syscall_t syscall_table[] = {
     sys_shared_fork,
     sys_tty_putchar_ntimes,
     sys_tty_putchar,  /* 30 */
-    sys_print_with_color
+    sys_print_with_color,
+    sys_lab_ouch,     /* 32: below is lab-5 related */
+    sys_lab_capitalize,
+    sys_lab_lower,
+    sys_lab_atoi,
+    sys_lab_itoa,
+    sys_lab_puts_at,
 };
 
 int _syscall() {
@@ -98,6 +104,44 @@ int sys_write(int32_t fd, int32_t buffer, int32_t len) {
 
 int sys_print_with_color(int32_t s, int32_t color, int32_t _3) {
     tty_writestring_colored((const char *)s, (uint8_t)color);
+    return 0;
+}
+
+int sys_lab_ouch(int32_t _1, int32_t _2, int32_t _3) {
+    tty_writestring_at("ouch", 12, 37);
+    return 0;
+}
+
+int sys_lab_capitalize(int32_t s, int32_t _2, int32_t _3) {
+    char *str = (char *)s;
+    while (*str) {
+        if (*str <= 'z' && *str >= 'a')
+            *str = *str - 'a' + 'A';
+    }
+    return 0;
+}
+
+int sys_lab_lower(int32_t s, int32_t _2, int32_t _3) {
+    char *str = (char *)s;
+    while (*str) {
+        if (*str <= 'Z' && *str >= 'A')
+            *str = *str - 'A' + 'a';
+    }
+    return 0;
+}
+
+int sys_lab_atoi(int32_t s, int32_t _2, int32_t _3) {
+
+    return 0;
+}
+
+int sys_lab_itoa(int32_t num, int32_t buf, int32_t _3) {
+
+    return 0;
+}
+
+int sys_lab_puts_at(int32_t s, int32_t row, int32_t column) {
+    tty_writestring_at((const char*)s, row, column);
     return 0;
 }
 
