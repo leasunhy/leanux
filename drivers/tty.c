@@ -149,6 +149,13 @@ void tty_writestring_colored(const char *str, uint8_t color) {
     tty_write_colored(str, strlen(str), color);
 }
 
+void tty_writestring_at(const char *str, uint8_t color, uint32_t row, uint32_t col) {
+    while (*str) {
+        tty_put_entry_at(*str, color, row, col);
+        str++;
+    }
+}
+
 int tty_getcursor() {
     port_byte_out(REG_SCREEN_CTRL, 14);
     int offset = port_byte_in(REG_SCREEN_DATA) << 8;

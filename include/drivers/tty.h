@@ -13,6 +13,7 @@ void tty_write(const char *data, size_t len);
 void tty_write_colored(const char *data, size_t size, uint8_t color);
 void tty_writestring(const char *str);
 void tty_writestring_colored(const char *str, uint8_t color);
+void tty_writestring_at(const char *str, uint8_t color, uint32_t row, uint32_t column);
 
 int tty_getcursor();
 void tty_setcursor(int x, int y);
