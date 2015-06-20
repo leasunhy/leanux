@@ -21,6 +21,7 @@ void main() {
 
     char ns_new[20];
     lab_itoa(num, ns_new);
+    printf("Returned String: %s\n", ns_new);
 
     /*put string at the 15th row and the 14th column*/
     lab_puts_at(s, 15, 14);

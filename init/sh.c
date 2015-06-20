@@ -36,7 +36,7 @@ inline void call(uint32_t addr) {
 }
 
 void exec_program(uint8_t prog_no) {
-    if (prog_no != 1 || prog_no != 2)
+    if (prog_no != 1 && prog_no != 2)
         return;
     uint32_t user_address = 0x800000 + (prog_no - 1) * 0x400000;
     mm_mmap(kernel_pd, user_address >> 12, alloc_page(2048, num_of_page), 1, 0, 1);
@@ -54,7 +54,7 @@ void shell_process_cmd(const char *s, size_t len) {
         return;
     } else if (string_cmp(s, "prog2") == 0) {
         exec_program(2);
-        retturn;
+        return;
     }
     shell_print_error("No such command.");
 }

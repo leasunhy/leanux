@@ -3,6 +3,7 @@
 #include <stdbool.h>
 
 #include <leanux/interrupt.h>
+#include <lib/utils.h>
 #include <drivers/tty.h>
 
 #include <leanux/syscall.h>
@@ -108,7 +109,7 @@ int sys_print_with_color(int32_t s, int32_t color, int32_t _3) {
 }
 
 int sys_lab_ouch(int32_t _1, int32_t _2, int32_t _3) {
-    tty_writestring_at("ouch", 12, 37);
+    tty_writestring_at("ouch", 0x0f, 12, 60);
     return 0;
 }
 
@@ -117,6 +118,7 @@ int sys_lab_capitalize(int32_t s, int32_t _2, int32_t _3) {
     while (*str) {
         if (*str <= 'z' && *str >= 'a')
             *str = *str - 'a' + 'A';
+        str++;
     }
     return 0;
 }
@@ -126,22 +128,25 @@ int sys_lab_lower(int32_t s, int32_t _2, int32_t _3) {
     while (*str) {
         if (*str <= 'Z' && *str >= 'A')
             *str = *str - 'A' + 'a';
+        str++;
     }
     return 0;
 }
 
 int sys_lab_atoi(int32_t s, int32_t _2, int32_t _3) {
-
-    return 0;
+    const char *ns = s;
+    int res = katoi(s);
+    return res;
 }
 
 int sys_lab_itoa(int32_t num, int32_t buf, int32_t _3) {
-
+    char *s = (char *)buf;
+    kitoa(s, num, 10);
     return 0;
 }
 
 int sys_lab_puts_at(int32_t s, int32_t row, int32_t column) {
-    tty_writestring_at((const char*)s, row, column);
+    tty_writestring_at((const char*)s, 0x0f, row, column);
     return 0;
 }
 
