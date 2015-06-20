@@ -34,3 +34,45 @@ void read_disk(uint32_t sector_no, uint32_t count, void *to) {
     }
 }
 
+size_t kitoa(char *buf, int i, int base) {
+    const char *digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    char tmp[40];
+    char *ptr = tmp;
+    size_t count = 0;
+
+    if (i == 0) {
+        buf[0] = '0';
+        buf[1] = '\0';
+        return 1;
+    }
+    if (i < 0) {
+        *buf++ = '-';
+        i = -i;
+        count++;
+    }
+    while (i != 0) {
+        *ptr++ = digits[i % base];
+        i /= base;
+        ++count;
+    }
+    while (ptr != tmp)
+        *buf++ = *--ptr;
+    *buf = '\0';
+    return count;
+}
+
+int katoi(const char *ns) {
+    int res = 0;
+    int sign = 1;
+    if (*ns == '-') {
+        sign = -1;
+        ns += 1;
+    }
+    while (*ns) {
+        res *= 10;
+        res += *ns++ - '0';
+    }
+    return res;
+}
+
+

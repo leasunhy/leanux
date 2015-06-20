@@ -10,8 +10,12 @@ void memory_set(void *p, uint8_t value, size_t count);
 int string_cmp(const char *sa, const char *sb);
 
 void read_disk(uint32_t sector_no, uint32_t count, void *to);
+
 /* defined in asm_utils.S */
 void read_a_sector(uint32_t sector_no, void *to);
+
+size_t kitoa(char *buf, int i, int base);
+int katoi(const char *ns);
 
 #endif
 
