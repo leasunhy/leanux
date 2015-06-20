@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 
+#include <leanux/sys.h>
+
 int scanf(const char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
@@ -13,6 +15,7 @@ int scanf(const char *fmt, ...) {
 
 int vscanf(const char *fmt, va_list ap) {
     char buf[LIBC_SCANF_BUFFER_SIZE];
+    read(0, buf, LIBC_SCANF_BUFFER_SIZE);
     return vsscanf(buf, fmt, ap);
 }
 
@@ -50,6 +53,8 @@ int vsscanf(const char *buf, const char *fmt, va_list ap) {
         if (fc != '%') {
             if (fc != bc)
                 return item_count;
+            else
+                ++buf;
         } else {
             if ((fc = *++fmt) == '\0')
                 return item_count;

@@ -72,7 +72,7 @@ int katoi(const char *ns) {
         res *= 10;
         res += *ns++ - '0';
     }
-    return res;
+    return res * sign;
 }
 
 

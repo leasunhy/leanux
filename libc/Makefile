@@ -13,6 +13,8 @@ STDIO_OBJS:=\
 	stdio/putchar.o \
 	stdio/puts.o \
 	stdio/vsscanf.o\
+	stdio/gets.o\
+	stdio/getch.o
 
 STRING_OBJS:=\
 	string/strlen.o \

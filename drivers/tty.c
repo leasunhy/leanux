@@ -101,6 +101,7 @@ void tty_handle_scroll() {
 }
 
 size_t tty_read(char *buf, size_t len) {
+    enable_interrupt();
     size_t i = 0;
     while (i != len) {
         uint16_t scan_code;
