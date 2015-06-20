@@ -34,6 +34,8 @@ void shell_process_cmd(const char *s, size_t len) {
     if (len == shell_cmd_maxlen) {
         shell_print_error("Command too long. Discarded.");
     }
+    if (len == 0)
+        return;
     if (fork() == 0) {
         if (execve(s, NULL, NULL) == 0) {
             wait();

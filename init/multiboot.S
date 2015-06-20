@@ -76,7 +76,7 @@ align 4096
 kernel_page_table:
     times 0x1000 db 0
 
-section .text:
+section .text
 global _start
 _start:
     mov esp, stack_top

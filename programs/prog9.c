@@ -13,13 +13,12 @@ char str[80] = "129djwqhdsajd128dw9i39ie93i8494urjoiew98kdkd";
 int LetterNr = -1;
 int main() {
     int pid;
-    char ch;
     pid = shared_fork();
     __asm__ __volatile__("sti");
     if (pid == -1)
         printf("error in fork!\n");
     if (pid) {
-        ch = wait();
+        wait();
         printf("Parent: LetterNr=%d\n", LetterNr);
     } else {
         LetterNr = CountLetter(str);

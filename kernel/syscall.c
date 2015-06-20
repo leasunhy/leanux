@@ -134,8 +134,8 @@ int sys_lab_lower(int32_t s, int32_t _2, int32_t _3) {
 }
 
 int sys_lab_atoi(int32_t s, int32_t _2, int32_t _3) {
-    const char *ns = s;
-    int res = katoi(s);
+    const char *ns = (const char *)s;
+    int res = katoi(ns);
     return res;
 }
 

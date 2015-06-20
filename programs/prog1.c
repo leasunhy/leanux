@@ -3,5 +3,6 @@
 
 int main() {
     printf("I'm a normal C program!!!!\n");
+    return 0;
 }
 
