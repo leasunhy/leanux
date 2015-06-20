@@ -3,12 +3,20 @@
 
 #include <stdarg.h>
 
+#define LIBC_SCANF_BUFFER_SIZE 128
+
+int putchar(int c);
+int puts(const char *s);
+
 int printf(const char *fmt, ...);
 int vprintf(const char *fmt, va_list ap);
 int sprintf(char *buf, const char *fmt, ...);
 int vsprintf(char *buf, const char *fmt, va_list ap);
-int putchar(int c);
-int puts(const char *s);
+
+int vsscanf(const char *buf, const char *fmt, va_list ap);
+int sscanf(const char *buf, const char *fmt, ...);
+int vscanf(const char *fmt, va_list ap);
+int scanf(const char *fmt, ...);
 
 #endif  // _LEANUX_LIBC_STDIO_H
 

@@ -12,6 +12,7 @@ STDIO_OBJS:=\
 	stdio/vprintf.o \
 	stdio/putchar.o \
 	stdio/puts.o \
+	stdio/vsscanf.o\
 
 STRING_OBJS:=\
 	string/strlen.o \

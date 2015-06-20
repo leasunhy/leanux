@@ -36,14 +36,14 @@ static size_t itoa(char *buf, int i, int base) {
 int printf(const char *fmt, ...) {
     va_list args;
     va_start(args, fmt);
-    int char_count = vprintf(fmt, args);
+    int item_count = vprintf(fmt, args);
     va_end(args);
-    return char_count;
+    return item_count;
 }
 
 int vprintf(const char *fmt, va_list ap)
 {
-    int char_count = 0;
+    int item_count = 0;
     char c;
     while ((c = *fmt++) != '\0') {
         if (c != '%') {
@@ -62,7 +62,8 @@ int vprintf(const char *fmt, va_list ap)
             write(1, str, strlen(str));
         }
         ++fmt;
+        ++item_count;
     }
-    return char_count;
+    return item_count;
 }
 
