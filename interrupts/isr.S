@@ -42,7 +42,23 @@ int_page_fault:
     call int_page_fault
     iretd
 
+; since eax is used to return the result, can't just pushad/popad
+[extern _syscall]
+[global syscall]
+syscall:
+    push ecx
+    push edx
+    push ebx
+    push esi
+    push edi
+    call _syscall
+    pop edi
+    pop esi
+    pop ebx
+    pop edx
+    pop ecx
+    iretd
+
 
 INT_HANDLER_WRAPPER int_21_keyboard
-INT_HANDLER_WRAPPER syscall
 

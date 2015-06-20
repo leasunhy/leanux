@@ -151,7 +151,7 @@ void tty_writestring_colored(const char *str, uint8_t color) {
 
 void tty_writestring_at(const char *str, uint8_t color, uint32_t row, uint32_t col) {
     while (*str) {
-        tty_put_entry_at(*str, color, row, col);
+        tty_put_entry_at(*str, color, col++, row);
         str++;
     }
 }
