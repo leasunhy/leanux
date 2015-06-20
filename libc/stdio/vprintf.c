@@ -2,6 +2,7 @@
 #include <stdarg.h>
 
 #include <stdio.h>
+#include <string.h>
 
 #include <leanux/sys.h>
 
@@ -55,12 +56,13 @@ int vprintf(const char *fmt, va_list ap)
         } else if (c == 'd') {
             char num_buf[40];
             itoa(num_buf, va_arg(ap, int), 10);
-            write(1, num_buf, 0x0F);
+            write(1, num_buf, strlen(num_buf));
         } else if (c == 's') {
-            write(1, va_arg(ap, char *), 0x0F);
+            const char *str = va_arg(ap, char *);
+            write(1, str, strlen(str));
         }
+        ++fmt;
     }
-    ++fmt;
     return char_count;
 }
 

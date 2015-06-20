@@ -4,7 +4,7 @@ LIBS:=$(LIBS) -lgcc -nostdlib -I$(CWD)/../libc/include
 OBJCOPY:=i686-elf-objcopy
 
 programs:=prog1.bin
-libc_libs:=$(CWD)/../libc/stdio/*.o
+libc_libs:=$(CWD)/../libc/stdio/*.o $(CWD)/../libc/string/*.o
 
 CRTI:=crti.o
 
