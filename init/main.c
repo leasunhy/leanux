@@ -5,6 +5,7 @@
 #include <leanux/syscall.h>
 #include <leanux/low_level.h>
 #include <leanux/mm.h>
+#include <leanux/timer.h>
 #include <drivers/tty.h>
 #include <drivers/keyboard.h>
 #include <lib/printk.h>
@@ -20,6 +21,7 @@ void kernel_main(void *multiboot_info) {
     mm_init(((uint32_t*)multiboot_info)[2]);
 
     keyboard_init();
+    timer_init();
 
     register_interrupt(0x80, 0x8, (uint32_t)&syscall);
 

@@ -6,6 +6,7 @@
 
 void tty_init();
 void tty_clear();
+void tty_put_entry_at(char c, uint8_t color, int x, int y);
 void tty_putchar(char c);
 void tty_putchar_ntimes(char c, uint8_t color, size_t n);
 size_t tty_read(char *buf, size_t len);

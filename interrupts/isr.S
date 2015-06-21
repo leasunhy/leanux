@@ -60,5 +60,6 @@ syscall:
     iretd
 
 
+INT_HANDLER_WRAPPER int_20_timer
 INT_HANDLER_WRAPPER int_21_keyboard
 

@@ -19,7 +19,7 @@ OBJS:=
 KERNEL_OBJ_LINK_LIST:=$(CRTI_OBJ) $(CRTN_OBJ) $(CRTBEGIN_OBJ) $(CRTEND_OBJ)\
 	init/multiboot.o init/main.o init/sh.o\
 	interrupts/isr.o\
-	kernel/interrupt.o kernel/low_level.o kernel/mm.o kernel/syscall.o\
+	kernel/interrupt.o kernel/low_level.o kernel/mm.o kernel/syscall.o kernel/timer.o\
 	drivers/keyboard.o drivers/tty.o\
 	lib/printk.o lib/cirqueue.o lib/utils.o lib/asm_utils.o\
 

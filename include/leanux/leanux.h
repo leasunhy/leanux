@@ -26,6 +26,8 @@ extern struct GLOBAL_DESC *GDT;
 void enter_shell();
 
 #define USER_PROG_ADDR 0x800000
+#define MAX_PROC_NUM   1024
+#define MAX_TIMER_EVENT 128
 
 #endif
 

@@ -3,6 +3,7 @@
 #include <stdint.h>
 
 #include <leanux/mm.h>
+#include <leanux/timer.h>
 #include <drivers/vga.h>
 #include <drivers/tty.h>
 #include <lib/printk.h>
@@ -13,15 +14,21 @@
 const char *shell_prompt = "leanux> ";
 const size_t shell_cmd_maxlen = 72;  /* VGA_WIDTH - len(prompt) */
 
+const char *anim_seq = "\\|/-";
+const int anim_seq_len = 4;
+int anim_count = 0;
+
 void shell_print_header();
 void shell_print_error();
 void shell_print_info();
 
 void shell_process_cmd(const char *s, size_t len);
+void shell_animation();
 
 
 /* entry for shell. if returned, will again be called by the kernel */
 void shell_main() {
+    register_timer_event(shell_animation, 3, TIMER_CONSTANT);
     shell_print_header();
     char buf[shell_cmd_maxlen + 10];
     while (true) {
@@ -109,6 +116,12 @@ void shell_print_info(const char *s) {
     tty_writestring_colored("INFO: ", COLOR_WHITE);
     tty_writestring_colored(s, COLOR_WHITE);
     tty_putchar('\n');
+}
+
+void shell_animation() {
+    anim_count += 1;
+    anim_count %= anim_seq_len;
+    tty_put_entry_at(anim_seq[anim_count], 0x0F, 79, 24);
 }
 
 #undef printf
