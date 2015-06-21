@@ -22,6 +22,16 @@ static inline uint32_t pt_addr(void *addr) {
     return (uint32_t)addr >> 12;
 }
 
+void switch_pd(PDE *pd_to) {
+    __asm__(
+        "mov cr3, %0;"
+        "mov eax, cr0;"
+        :
+        : "r"(pd_to)
+        : "eax"
+    );
+}
+
 inline void flush_tlb() {
     __asm__ __volatile__(
             "mov eax, cr3;"
@@ -75,6 +85,10 @@ void mm_init(uint32_t max_kb_installed) {
     flush_tlb();
 }
 
+static inline PTE *get_pt_from_pde(PDE pde) {
+    return (PTE *)(pde & 0xfffff000);
+}
+
 void mm_mmap(PDE *pd, uint32_t vir_page, uint32_t phy_page,
         bool global, bool user, bool read_write) {
     uint32_t pde_no = vir_page >> 10;
@@ -90,12 +104,42 @@ void mm_mmap(PDE *pd, uint32_t vir_page, uint32_t phy_page,
         memory_set((void*)(new_pt_page << 12), 0, 4096);
         *pde = make_pde(new_pt_page, user, read_write);
     }
-    PTE *pt = (PTE*)(*pde & 0xFFFFF000);
+    PTE *pt = get_pt_from_pde(*pde);
     pt[pte_no] = make_pte(phy_page, global, user, read_write);
     ++mem_map[phy_page];
     flush_tlb();
 }
 
+PDE *copy_pd_and_pts(const PDE *pd_from) {
+    uint32_t pd_to_page_no = alloc_page(0, 1023);
+    PDE *pd_to = (PDE *)(pd_to_page_no << 12);
+    mm_mmap(kernel_pd, pd_to_page_no, pd_to_page_no, true, false, true);
+    memory_set(pd_to, 0, 4096);
+    /* for the first 4Mib(reserved for os), just refer to the original one */
+    /*    which is normmally the one used by the kernel */
+    pd_to[0] = pd_from[0];
+
+    /* for the rest, do a deep copy when pde and pte present */
+    for (uint32_t i = 2; i < 1024; ++i) {
+        if (!(pd_from[i] & 1))
+            continue;
+        PTE *pt_from = get_pt_from_pde(pd_from[i]);
+        /* copy pte's */
+        for (int j = 0; j < 1024; ++j) {
+            if (!(pt_from[j] & 1))
+                continue;
+            uint32_t target_page_no = alloc_page(1024, num_of_page);
+            mm_mmap(pd_to, (i << 10) | j, target_page_no, true,
+                    false, true);
+            /* do the copy */
+            memory_copy((uint8_t *)(target_page_no << 12),
+                    (uint8_t *)(pt_from[j] & 0xfffff000), 4096);
+        }
+    }
+
+    flush_tlb();
+    return pd_to;
+}
 
 PDE make_pde(uint32_t pt_page_no, bool user, bool read_write) {
     PDE res = 0;

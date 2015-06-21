@@ -25,5 +25,7 @@ extern struct GLOBAL_DESC *GDT;
 
 void enter_shell();
 
+#define USER_PROG_ADDR 0x800000
+
 #endif
 

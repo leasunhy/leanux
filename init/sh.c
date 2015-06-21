@@ -35,13 +35,28 @@ inline void call(uint32_t addr) {
     __asm__ __volatile__("call %0" ::"m"(addr));
 }
 
-void exec_program(uint8_t prog_no) {
+PDE *load_program(uint8_t prog_no) {
     if (prog_no != 1)
-        return;
-    uint32_t user_address = 0x800000;
-    mm_mmap(kernel_pd, user_address >> 12, alloc_page(1024, num_of_page), 1, 0, 1);
-    read_disk(2, 3, (void*)user_address);
-    call(user_address);
+        return NULL;
+    PDE *user_pd = copy_pd_and_pts(kernel_pd);
+    /* the physical page # is also the linear page # in kernel_pd */
+    uint32_t phy_page_no = alloc_page(1024, num_of_page);
+    mm_mmap(user_pd, USER_PROG_ADDR >> 12, phy_page_no,
+            true, false, true);
+    mm_mmap(kernel_pd, phy_page_no, phy_page_no, true, false, true);
+    void *prog_page = (void *)(phy_page_no << 12);
+    read_disk(2 + 8 * (prog_no - 1), 8, prog_page);
+    return user_pd;
+}
+
+int exec_program(uint8_t prog_no) {
+    PDE *user_pd = load_program(prog_no);
+    if (!user_pd)
+        return -1;
+    switch_pd(user_pd);
+    call(USER_PROG_ADDR);
+    switch_pd(kernel_pd);
+    return 0;
 }
 
 /* process the command line */
