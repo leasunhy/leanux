@@ -38,10 +38,6 @@ void shell_main() {
     }
 }
 
-inline void call(uint32_t addr) {
-    __asm__ __volatile__("call %0" ::"m"(addr));
-}
-
 PDE *load_program(uint8_t prog_no) {
     if (prog_no != 1)
         return NULL;

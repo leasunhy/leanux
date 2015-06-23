@@ -22,16 +22,6 @@ static inline uint32_t pt_addr(void *addr) {
     return (uint32_t)addr >> 12;
 }
 
-void switch_pd(PDE *pd_to) {
-    __asm__(
-        "mov cr3, %0;"
-        "mov eax, cr0;"
-        :
-        : "r"(pd_to)
-        : "eax"
-    );
-}
-
 inline void flush_tlb() {
     __asm__ __volatile__(
             "mov eax, cr3;"
@@ -120,7 +110,7 @@ PDE *copy_pd_and_pts(const PDE *pd_from) {
     pd_to[0] = pd_from[0];
 
     /* for the rest, do a deep copy when pde and pte present */
-    for (uint32_t i = 2; i < 1024; ++i) {
+    for (uint32_t i = 2; i < 1023; ++i) {
         if (!(pd_from[i] & 1))
             continue;
         PTE *pt_from = get_pt_from_pde(pd_from[i]);

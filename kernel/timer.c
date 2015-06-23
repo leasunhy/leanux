@@ -15,18 +15,17 @@ void timer_init() {
 }
 
 void _int_20_timer() {
-    disable_interrupt();
-    for (int32_t i = 0; i < timer_event_num; ++i) {
+    send_pic_eoi(0x20);
+    /* Since the 0th event will be the scheduler, use reversed order */
+    for (int32_t i = timer_event_num - 1; i >= 0; --i) {
         struct timer_event_t *p_event = &timer_event_list[i];
         if (!--p_event->count_down) {
-            (*p_event->handler)();
             p_event->count_down = p_event->interval;
             if (p_event->type == TIMER_ONESHOT)
                 unregister_timer_event(p_event->event_id);
+            (*p_event->handler)();
         }
     }
-    send_pic_eoi(0x20);
-    enable_interrupt();
 }
 
 int32_t register_timer_event(void (*handler)(), uint32_t interval,
@@ -39,8 +38,8 @@ int32_t register_timer_event(void (*handler)(), uint32_t interval,
     timer_event_list[timer_event_num].interval = interval;
     timer_event_list[timer_event_num].handler = handler;
     timer_event_list[timer_event_num].type = type;
-    return timer_event_num++;
     enable_interrupt();
+    return timer_event_num++;
 }
 
 bool unregister_timer_event(int32_t timer_event_id) {

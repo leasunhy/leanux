@@ -17,5 +17,13 @@ void read_a_sector(uint32_t sector_no, void *to);
 size_t kitoa(char *buf, int i, int base);
 int katoi(const char *ns);
 
+inline void call(uint32_t addr) {
+    __asm__ __volatile__("call %0" ::"m"(addr));
+}
+
+inline void jmp(uint32_t addr) {
+    __asm__ __volatile__("jmp %0" :: "m"(addr));
+}
+
 #endif
 

@@ -6,6 +6,7 @@
 #include <leanux/low_level.h>
 #include <leanux/mm.h>
 #include <leanux/timer.h>
+#include <leanux/sched.h>
 #include <drivers/tty.h>
 #include <drivers/keyboard.h>
 #include <lib/printk.h>
@@ -22,6 +23,7 @@ void kernel_main(void *multiboot_info) {
 
     keyboard_init();
     timer_init();
+    sched_init();
 
     register_interrupt(0x80, 0x8, (uint32_t)&syscall);
 
