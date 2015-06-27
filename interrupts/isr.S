@@ -62,12 +62,17 @@ syscall:
 [extern _int_20_timer]
 [global int_20_timer]
 [global int_20_timer_end]
+[global stored_esp]
 int_20_timer:
     pushad
+    mov eax, esp
+    sub eax, 4
+    mov [stored_esp], eax
     call dword _int_20_timer
 int_20_timer_end:
     popad
     iretd
+stored_esp: resd 1
 
 INT_HANDLER_WRAPPER int_21_keyboard
 

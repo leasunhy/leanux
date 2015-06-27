@@ -23,8 +23,6 @@ struct process_t *sched_serve(struct process_list_t *q);
 uint32_t next_pid;
 
 /* force a switch when current time slice ends */
-/* TODO: the return value is stored in original stack. maybe mem leak? */
-/*__attribute__((noreturn))*/
 void force_switch() {
     if (!current_process && ready_list.size == 0)
         return;
@@ -33,7 +31,8 @@ void force_switch() {
             return;
         current_process->status = READY;
         sched_enqueue(&ready_list, current_process);
-        __asm__ __volatile__("mov %0, esp" : "=r"(current_process->context.esp));
+        /*__asm__ __volatile__("mov %0, esp" : "=r"(current_process->context.esp));*/
+        current_process->context.esp = stored_esp;
     }
     current_process = sched_serve(&ready_list);
     current_process->status = RUNNING;
@@ -44,6 +43,7 @@ void force_switch() {
 void sched_init() {
     disable_interrupt();
 
+    memory_set(process_list, 0, sizeof(process_list));
     next_pid = 0;
     current_process = NULL;
     ready_list.head = NULL;
@@ -79,29 +79,30 @@ void init_process(struct process_t *proc) {
     /* prepare the stack content */
     PDE *cur_pd = current_pd();
     switch_pd(proc->page_dir);
-    uint32_t *proc_stack = (uint32_t *)0xFFFFFFFF;
-    *--proc_stack = 0x202;  /*eflags*/
+    uint32_t *proc_stack = (uint32_t *)0xFFFFFFFC;
+    *proc_stack = 0x202;  /*eflags*/
     *--proc_stack = 0x8;  /*cs*/
     *--proc_stack = USER_PROG_ADDR;  /*eip*/
     *--proc_stack = 0x0;  /*eax*/
     *--proc_stack = 0x0;  /*ecx*/
     *--proc_stack = 0x0;  /*edx*/
     *--proc_stack = 0x0;  /*ebx*/
-    *--proc_stack = 0xFFFFFFFF - 4 * 3;  /*esp*/
+    *--proc_stack = 0xFFFFFFFC - 4 * 2;  /*esp*/
     *--proc_stack = 0xFFFFF000;  /*ebp*/
     *--proc_stack = 0x0;  /*esi*/
     *--proc_stack = 0x0;  /*edi*/
     *--proc_stack = (uint32_t)&int_20_timer_end;
-    proc->context.esp = (uint32_t)proc_stack;
+
     switch_pd(cur_pd);
+    proc->context.esp = (uint32_t)proc_stack;
 }
 
-void add_process(struct process_t *proc) {
+bool add_process(struct process_t *proc) {
+    if (process_list[proc->id])
+        return false;
+    process_list[proc->id] = proc;
     sched_enqueue(&ready_list, proc);
-}
-
-struct process_t *alloc_proc() {
-    return process_list[next_pid];
+    return true;
 }
 
 void init_process_queue(struct process_list_t *q) {
