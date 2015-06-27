@@ -59,7 +59,15 @@ syscall:
     pop ecx
     iretd
 
+[extern _int_20_timer]
+[global int_20_timer]
+[global int_20_timer_end]
+int_20_timer:
+    pushad
+    call dword _int_20_timer
+int_20_timer_end:
+    popad
+    iretd
 
-INT_HANDLER_WRAPPER int_20_timer
 INT_HANDLER_WRAPPER int_21_keyboard
 

@@ -6,10 +6,11 @@
 #include <drivers/tty.h>
 
 #include <leanux/syscall.h>
+#include <leanux/sched.h>
 
 const syscall_t syscall_table[] = {
     NULL,
-    NULL,
+    sys_exit,
     NULL,
     sys_read,
     sys_write,

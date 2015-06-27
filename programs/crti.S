@@ -2,12 +2,16 @@
 
 [global _start]
 _start:
-pushfd
-pushad
+;pushfd
+;pushad
 
 call main
 
-popad
-popfd
-ret
+mov ebx, eax
+mov eax, 1
+int 0x80
+
+;popad
+;popfd
+;ret
 

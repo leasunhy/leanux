@@ -4,6 +4,7 @@
 
 #include <leanux/leanux.h>
 #include <leanux/interrupt.h>
+#include <leanux/low_level.h>
 #include <leanux/timer.h>
 
 struct timer_event_t timer_event_list[MAX_TIMER_EVENT];
@@ -11,13 +12,19 @@ int32_t timer_event_num;
 
 void timer_init() {
     timer_event_num = 0;
+
+    /* generate an interrupt every 10ms */
+    port_byte_out(0x43, 0x34);
+    port_byte_out(0x40, (1193182 / 100) >> 8);
+    port_byte_out(0x40, (1193182 / 100) & 0xFF);
+
     register_interrupt(0x20, 0x8, (uint32_t)&int_20_timer);
 }
 
 void _int_20_timer() {
     send_pic_eoi(0x20);
     /* Since the 0th event will be the scheduler, use reversed order */
-    for (int32_t i = timer_event_num - 1; i >= 0; --i) {
+    for (int32_t i = timer_event_num - 1; i >= 1; --i) {
         struct timer_event_t *p_event = &timer_event_list[i];
         if (!--p_event->count_down) {
             p_event->count_down = p_event->interval;
@@ -25,6 +32,12 @@ void _int_20_timer() {
                 unregister_timer_event(p_event->event_id);
             (*p_event->handler)();
         }
+    }
+    /* treat the scheduler diffrently */
+    struct timer_event_t *p_event = &timer_event_list[0];
+    if (!--p_event->count_down) {
+        p_event->count_down = p_event->interval;
+        (*p_event->handler)();
     }
 }
 

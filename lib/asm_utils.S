@@ -66,18 +66,3 @@ read_a_sector:                        ;从硬盘读取一个逻辑扇区
          ret
 
 
-[global switch_pd_stack_regs_and_jmp]
-switch_pd_stack_regs_and_jmp:
-    add esp, 4
-    mov ecx, [esp]        ; pd
-    mov eax, [esp+4]      ; esp
-    mov edx, [esp+8]      ; eip
-    mov cr3, ecx
-    mov esp, eax
-    push edx
-    add esp, 4
-    popfd
-    popad
-    jmp [esp-4]
-
-
