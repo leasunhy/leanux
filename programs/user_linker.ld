@@ -4,22 +4,22 @@ SECTIONS
 {
 	. = 8M;
 
-	.text BLOCK(4K) : ALIGN(4K)
+	.text BLOCK(16) : ALIGN(16)
 	{
 		*(.text)
 	}
 
-	.rodata BLOCK(4K) : ALIGN(4K)
+	.rodata BLOCK(16) : ALIGN(16)
 	{
 		*(.rodata)
 	}
 
-	.data BLOCK(4K) : ALIGN(4K)
+	.data BLOCK(16) : ALIGN(16)
 	{
 		*(.data)
 	}
 
-	.bss BLOCK(4K) : ALIGN(4K)
+	.bss BLOCK(16) : ALIGN(16)
 	{
 		*(COMMON)
 		*(.bss)

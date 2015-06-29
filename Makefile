@@ -17,7 +17,7 @@ LIBS:=$(LIBS) -nostdlib -lgcc -I$(CWD)/include
 OBJS:=
 
 KERNEL_OBJ_LINK_LIST:=$(CRTI_OBJ) $(CRTN_OBJ) $(CRTBEGIN_OBJ) $(CRTEND_OBJ)\
-	init/multiboot.o init/main.o init/sh.o\
+	init/multiboot.o init/main.o\
 	interrupts/isr.o\
 	kernel/interrupt.o kernel/low_level.o kernel/mm.o kernel/syscall.o kernel/timer.o kernel/sched.o\
 	drivers/keyboard.o drivers/tty.o\

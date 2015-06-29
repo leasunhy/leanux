@@ -74,5 +74,16 @@ int_20_timer_end:
     iretd
 stored_esp: resd 1
 
+
+[extern _sys_fork]
+[global sys_fork]
+[global sys_fork_end]
+sys_fork:
+    mov eax, esp
+    mov [stored_esp], eax
+    call _sys_fork
+sys_fork_end:
+    ret
+
 INT_HANDLER_WRAPPER int_21_keyboard
 

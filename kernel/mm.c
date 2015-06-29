@@ -4,6 +4,7 @@
 
 #include <leanux/interrupt.h>
 #include <leanux/leanux.h>
+#include <leanux/sched.h>
 #include <lib/utils.h>
 #include <lib/printk.h>
 
@@ -105,9 +106,10 @@ PDE *copy_pd_and_pts(const PDE *pd_from) {
     PDE *pd_to = (PDE *)(pd_to_page_no << 12);
     mm_mmap(kernel_pd, pd_to_page_no, pd_to_page_no, true, false, true);
     memory_set(pd_to, 0, 4096);
-    /* for the first 4Mib(reserved for os), just refer to the original one */
+    /* for the first 8Mib(reserved for os), just refer to the original one */
     /*    which is normmally the one used by the kernel */
     pd_to[0] = pd_from[0];
+    pd_to[1] = pd_from[1];
 
     /* for the rest, do a deep copy when pde and pte present */
     for (uint32_t i = 2; i < 1023; ++i) {
@@ -119,11 +121,17 @@ PDE *copy_pd_and_pts(const PDE *pd_from) {
             if (!(pt_from[j] & 1))
                 continue;
             uint32_t target_page_no = alloc_page(1024, num_of_page);
+            mm_mmap(kernel_pd, target_page_no, target_page_no, true, false, true);
+            uint32_t temp_page_no = 0x700;
+            if (current_process)
+                mm_mmap(current_process->page_dir, temp_page_no, target_page_no, true, false, true);
             mm_mmap(pd_to, (i << 10) | j, target_page_no, true,
                     false, true);
             /* do the copy */
-            memory_copy((uint8_t *)(target_page_no << 12),
-                    (uint8_t *)(pt_from[j] & 0xfffff000), 4096);
+            /*memory_copy((uint8_t *)(target_page_no << 12),      */
+            /*        (uint8_t *)(pt_from[j] & 0xfffff000), 4096);*/
+            memory_copy((uint8_t *)(temp_page_no << 12),
+                    (uint8_t *)((i << 10 | j) << 12), 4096);
         }
     }
 

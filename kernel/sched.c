@@ -19,6 +19,8 @@ void init_process_queue(struct process_list_t *q);
 void sched_enqueue(struct process_list_t *q, struct process_t *process);
 struct process_t *sched_serve(struct process_list_t *q);
 
+struct process_t *kernel_proc;
+
 /*next_pid is the pid to be assigned for the next process*/
 uint32_t next_pid;
 
@@ -97,6 +99,61 @@ void init_process(struct process_t *proc) {
     proc->context.esp = (uint32_t)proc_stack;
 }
 
+int _sys_fork(int32_t _1, int32_t _2, int32_t _3) {
+    disable_interrupt();
+
+    uint32_t proc_struct_page_no = alloc_page(1024, num_of_page);
+    mm_mmap(current_process->page_dir,
+            proc_struct_page_no, proc_struct_page_no, true, false, true);
+    struct process_t *proc = (struct process_t *)(proc_struct_page_no << 12);
+
+    memory_set(proc, 0, sizeof(struct process_t));
+
+    proc->id = next_pid++;
+    proc->parent_id = current_process->id;
+    proc->next = NULL;
+    proc->status = READY;
+
+    proc->page_dir = copy_pd_and_pts(current_process->page_dir);
+
+    proc->page_no = alloc_page(1024, num_of_page);
+    mm_mmap(current_process->page_dir, 0x700, proc->page_no,
+            true, false, true);
+    mm_mmap(proc->page_dir, USER_PROG_ADDR >> 12, proc->page_no,
+            true, false, true);
+    memory_copy((void *)(0x700 << 12), (void *)(USER_PROG_ADDR), 4096);
+
+    uint32_t stack_no = alloc_page(1024, num_of_page);
+    mm_mmap(current_process->page_dir, 0xFFFFE, stack_no, true, false, true);
+    mm_mmap(proc->page_dir, 0xFFFFF, stack_no, true, false, true);
+    memory_copy((void *)0xFFFFE000, (void *)0xFFFFF000, 4096);
+
+    /* prepare the stack content */
+    uint32_t stack_int_frame = 0xFFFFEFFF - (0xFFFFFFFF - stored_esp);
+    uint32_t *proc_stack = (uint32_t *)stack_int_frame;
+    *--proc_stack = 0x202;  /*eflags*/
+    *--proc_stack = 0x8;  /*cs*/
+    *--proc_stack = (uint32_t)&sys_fork_end;  /*eip*/
+    *--proc_stack = 0;  /*eax, stores the pid of the child*/
+    *--proc_stack = 0x0;  /*ecx*/
+    *--proc_stack = 0x0;  /*edx*/
+    *--proc_stack = 0x0;  /*ebx*/
+    *--proc_stack = stored_esp - 4 * 3;  /*esp*/
+    *--proc_stack = 0xFFFFF000;  /*ebp*/
+    *--proc_stack = 0x0;  /*esi*/
+    *--proc_stack = 0x0;  /*edi*/
+    *--proc_stack = (uint32_t)&int_20_timer_end;
+
+    proc->context.esp = ((uint32_t)proc_stack - 0xFFFFE000 + 0xFFFFF000);
+
+    mm_mmap(proc->page_dir, proc_struct_page_no, proc_struct_page_no,
+            true, false, true);
+    add_process(proc);
+
+    enable_interrupt();
+    return proc->id;
+}
+
 bool add_process(struct process_t *proc) {
     if (process_list[proc->id])
         return false;
@@ -112,7 +169,6 @@ void init_process_queue(struct process_list_t *q) {
 }
 
 void sched_enqueue(struct process_list_t *q, struct process_t *process) {
-    disable_interrupt();
     if (q->size == 0)
         q->head = process;
     else
@@ -120,11 +176,9 @@ void sched_enqueue(struct process_list_t *q, struct process_t *process) {
     q->tail = process;
     process->next = NULL;
     q->size += 1;
-    enable_interrupt();
 }
 
 struct process_t *sched_serve(struct process_list_t *q) {
-    disable_interrupt();
     struct process_t *res = NULL;
     if (q->size) {
         res = q->head;
@@ -132,13 +186,14 @@ struct process_t *sched_serve(struct process_list_t *q) {
         res->next = NULL;
         --q->size;
     }
-    enable_interrupt();
     return res;
 }
 
 __attribute__((noreturn))
 int sys_exit(int32_t code, int32_t _2, int32_t _3) {
-    force_switch();
+    /* TODO: free page constructs */
+    current_process = NULL;
+    enable_interrupt();
     while (1)
         ;
 }

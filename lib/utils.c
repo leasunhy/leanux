@@ -3,9 +3,11 @@
 
 #include <lib/utils.h>
 
-void memory_copy(uint8_t *dest, uint8_t *src, size_t count) {
+void memory_copy(void *dest, void *src, size_t count) {
+    uint8_t *rdest = (uint8_t *)dest;
+    uint8_t *rsrc = (uint8_t *)src;
     for (size_t i = 0; i != count; ++i)
-        *dest++ = *src++;
+        *rdest++ = *rsrc++;
 }
 
 void memory_set(void *addr, uint8_t value, size_t count) {
