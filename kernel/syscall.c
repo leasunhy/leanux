@@ -18,7 +18,7 @@ const syscall_t syscall_table[] = {
     sys_write,
     NULL,
     NULL,
-    NULL,
+    sys_waitpid,
     NULL,
     NULL,
     NULL,  /* 10 */
@@ -39,7 +39,7 @@ const syscall_t syscall_table[] = {
     NULL,
     NULL,
     NULL,
-    NULL,
+    sys_shared_fork,
     sys_tty_putchar_ntimes,
     sys_tty_putchar,  /* 30 */
     sys_print_with_color
@@ -62,11 +62,11 @@ int sys_execve(int32_t ipath, int32_t iargv, int32_t ienvp) {
     char *const *argv = (char *const *)iargv;
     char *const *envp = (char *const *)ienvp;
     int prog_no = 0;
-    if (string_cmp(path, "prog1") == 0)
-        prog_no = 1;
-    else if (string_cmp(path, "prog2") == 0)
-        prog_no = 2;
+    if (string_ncmp(path, "prog", 4) == 0)
+        prog_no = katoi(path + 4);
     else
+        return -1;
+    if (!(prog_no >= 1 && prog_no <= 9))
         return -1;
     read_disk(2 + 8 * (prog_no - 1), 8, (void *)USER_PROG_ADDR);
     /*add_process(proc);*/

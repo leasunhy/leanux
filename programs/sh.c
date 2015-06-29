@@ -29,44 +29,21 @@ int main() {
     return 0;
 }
 
-//void load_program(struct process_t *proc, uint8_t prog_no) {
-//    /* the physical page # is also the linear page # in kernel_pd */
-//    uint32_t phy_page_no = proc->page_no;
-//    void *prog_page = (void *)(phy_page_no << 12);
-//    read_disk(2 + 8 * (prog_no - 1), 8, prog_page);
-//}
-//
-//int exec_program(uint8_t prog_no) {
-//    if (prog_no != 1 && prog_no != 9)
-//        return -1;
-//    uint32_t proc_struct_page_no = alloc_page(1024, num_of_page);
-//    mm_mmap(kernel_pd, proc_struct_page_no, proc_struct_page_no, true, false, true);
-//    struct process_t *proc = (struct process_t *)(proc_struct_page_no << 12);
-//    init_process(proc);
-//    mm_mmap(proc->page_dir, proc_struct_page_no, proc_struct_page_no, true, false, true);
-//    load_program(proc, prog_no);
-//    add_process(proc);
-//    return 0;
-//}
-
 /* process the command line */
 void shell_process_cmd(const char *s, size_t len) {
     if (len == shell_cmd_maxlen) {
         shell_print_error("Command too long. Discarded.");
     }
     if (fork() == 0) {
-        if (execve(s, NULL, NULL) == 0)
-            return;
-        else
+        if (execve(s, NULL, NULL) == 0) {
+            wait();
             _exit(0);
+        } else {
+            shell_print_error("No such command.");
+            _exit(0);
+        }
     }
-
-//    if (string_cmp(s, "prog1") == 0) {
-//        disable_interrupt();
-//        exec_program(1);
-//        enable_interrupt();
-//        return;
-//    }
+    wait();
 }
 
 

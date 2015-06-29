@@ -27,6 +27,18 @@ int string_cmp(const char *sa, const char *sb) {
         return 0;
 }
 
+int string_ncmp(const char *sa, const char *sb, size_t n) {
+    size_t i = 0;
+    while (*sa && *sb && *sa == *sb && ++i < n)
+        ++sa, ++sb;
+    if (*sa < *sb)
+        return -1;
+    else if (*sa > *sb)
+        return 1;
+    else
+        return 0;
+}
+
 void read_disk(uint32_t sector_no, uint32_t count, void *to) {
     uint32_t i = 0;
     while (i++ != count) {

@@ -8,6 +8,7 @@ void memory_copy(void *dest, void *src, size_t count);
 void memory_set(void *p, uint8_t value, size_t count);
 
 int string_cmp(const char *sa, const char *sb);
+int string_ncmp(const char *sa, const char *sb, size_t n);
 
 void read_disk(uint32_t sector_no, uint32_t count, void *to);
 

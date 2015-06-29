@@ -79,10 +79,24 @@ stored_esp: resd 1
 [global sys_fork]
 [global sys_fork_end]
 sys_fork:
+    enter 0, 0
     mov eax, esp
     mov [stored_esp], eax
     call _sys_fork
 sys_fork_end:
+    leave
+    ret
+
+[extern _sys_shared_fork]
+[global sys_shared_fork]
+[global sys_shared_fork_end]
+sys_shared_fork:
+    enter 0, 0
+    mov eax, esp
+    mov [stored_esp], eax
+    call _sys_shared_fork
+sys_shared_fork_end:
+    leave
     ret
 
 INT_HANDLER_WRAPPER int_21_keyboard
