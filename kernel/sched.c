@@ -33,7 +33,6 @@ void force_switch() {
             return;
         current_process->status = READY;
         sched_enqueue(&ready_list, current_process);
-        /*__asm__ __volatile__("mov %0, esp" : "=r"(current_process->context.esp));*/
         current_process->context.esp = stored_esp;
     }
     current_process = sched_serve(&ready_list);
