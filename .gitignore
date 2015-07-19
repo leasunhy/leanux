@@ -1,0 +1,7 @@
+/leanux
+iso/boot/leanux
+leanux.iso
+disk.img
+*.a
+*.elf
+*.bin
